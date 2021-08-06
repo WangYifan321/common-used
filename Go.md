@@ -57,7 +57,7 @@ Type: complex128 Value: (2+3i)
 
 ## 常量
 
-```
+```go
 package main
 
 import "fmt"
@@ -785,9 +785,38 @@ func main() {
 
 
 
+# go-web
 
+## 导包问题
 
+https://www.cnblogs.com/xiaoyingzhanchi/p/14410626.html
 
+**报错产生原因有两个：**
 
+第一个：通过查找原因，gin的个别包无法下载是被墙了
 
+第二个：go在1.13版本后，默认开启了GOSUMDB=sum.golang.org,而这个网址sum.golang.org 在国内是无法访问，故需要关闭
 
+**解决办法：**
+
+第一步：关闭GOSUMDB     命令:【go env -w GOSUMDB=off】
+
+第二步：更换国内源，彻底解决配置代理也无法下载个别包的问题 (因为在执行go get github.com/gin-gonic/gin时我是配置了goproxy的，依旧无法下载个别包，所以彻底更换国内源)
+
+命令：【go env -w GO111MODULE=on】 
+
+​           【go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct】
+
+**总结：**
+
+　　关闭GOSUMDB=off，更换国内代理源即可完美解决下载问题，设置完后，再执行【go get github.com/gin-gonic/gin】，不到5秒钟，所有gin相关的包均下载成功，也无任何报错
+
+**后续反馈：**
+
+　　经过上述步骤设置后，虽然需要的文件能很快下载下来，但是没有出现在src目录下，而是出现在pkg目录下，因此在goland上无法直接引用gin包中的内容
+
+解决办法：打开goland->设置->go->gomodules设置镜像源
+
+设置完go module后，在需要调用gin包的文件夹下执行命令【go mod init gin】，就会在这个文件夹下自动生成一个go.mod文件
+
+最后一步：在命令操作区输入命令【go get github.com/gin-gonic/gin】，执行这步就是导入包，将包从pkg目录引入到src目录下
